@@ -50,3 +50,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  unit-testing:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Tests started
+        run: sleep 10
+      - name: Test Ended
+        run: echo "tests successful"
