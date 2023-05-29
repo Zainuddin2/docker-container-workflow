@@ -76,6 +76,7 @@ jobs:
   deploy-to-qa:
     runs-on: ubuntu-latest
     needs: [build, unit-testing, linting, sonarcloud-scan]
+    environment: 'qa'
     steps:
       - name: terraform plan and apply to qa
         run: sleep 10
@@ -93,7 +94,7 @@ jobs:
         
   deploy-to-prod:
     runs-on: ubuntu-latest
-    needs: [deploy-to-qa]
+    needs: [deploy-to-uat]
     steps:
       - name: terraform plan and apply to Prod
         run: sleep 10
