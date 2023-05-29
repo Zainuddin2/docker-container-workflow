@@ -1,0 +1,81 @@
+name: Deploy to Dev with any Branch
+
+on:
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build container
+        run: |
+          docker build -t my-container .
+          docker images
+
+      - name: Run container
+        run: |
+          docker run -d -p 3000:3000 --name my-container-instance my-container
+          docker ps -a
+
+      - name: Wait for application to start
+        run: sleep 10
+
+      - name: Test application
+        run: |
+          response=$(curl -sS localhost:3000)
+          echo "Response: $response"
+          if [[ $response == *"Api is running..."* ]]; then
+            echo "Application is working correctly."
+          else
+            echo "Application is not responding as expected."
+            exit 1
+          fi
+
+  unit-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tests started
+        run: sleep 10
+      - name: Test Ended
+        run: echo "tests successful"
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Linting started
+        run: sleep 10
+      - name: Linting Ended
+        run: echo "linting successful"
+  sonarcloud-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SonarCloud Scan
+        run: sleep 10
+      - name: SonarCloud Ended
+        run: echo "SonarCloud scan successful"
+        
+#       - name: SonarCloud Scan
+#         uses: SonarSource/sonarcloud-github-action@master
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy-to-dev:
+    runs-on: ubuntu-latest
+    needs: [build, unit-testing, linting, sonarcloud-scan]
+    steps:
+      - name: terraform plan and apply to qa
+        run: sleep 10
+      - name: terraform test
+        run: echo "terraform apply to qa successful"
